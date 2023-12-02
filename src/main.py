@@ -54,6 +54,8 @@ glue = RlGlue(wrapper, env)
 glue.start()
 start_time = time.time()
 episode = 0
+avg_rets = np.zeros(4)
+timescales = np.array([0.8, 0.9, 0.99, 0.999])
 for step in range(exp.max_steps):
     _, _, _, t = glue.step()
 
@@ -63,19 +65,29 @@ for step in range(exp.max_steps):
     is_episode_max = problem.max_episode_steps != -1 and glue.num_steps >= problem.max_episode_steps
     if t or is_episode_max:
         episode += 1
-        glue.start()
 
         # collect an array of rewards that is the length of the number of steps in episode
         # effectively we count the whole episode as having received the same final reward
         collector.concat('returns', [glue.total_reward] * glue.num_steps)
         collector.collect('episodes', glue.total_reward)
 
+        if episode == 1:
+            avg_rets[:] = glue.total_reward
+
+        high = 2 ** glue.environment.high_block
+        # get a moving average over returns
+        avg_rets = timescales * avg_rets + (1 - timescales) * glue.total_reward
+        last_ret = glue.total_reward
+
+        timestrings = ''
+        for avg in avg_rets:
+            timestrings += f' {avg:.2f}'
+
         # compute the average time-per-step in ms
         avg_time = 1000 * (time.time() - start_time) / step
-        logging.info(f' {episode} {step} {glue.total_reward} {avg_time:.4}ms')
+        logging.info(f' {episode} {step} {high} {glue.total_reward} {timestrings} {avg_time:.4}ms')
 
-        glue.total_reward = 0
-        glue.num_steps = 0
+        glue.start()
 
 collector.fillRest('returns', exp.max_steps)
 

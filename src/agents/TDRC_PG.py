@@ -9,10 +9,10 @@ from utils.torch import Batch, device
 from utils.policies import createSoftmax
 
 class TDRC_PG(QRC):
-    def __init__(self, features, actions, params, seed, collector):
-        super().__init__(features, 1, params, seed, collector)
+    def __init__(self, model, features, actions, params, seed, collector):
+        super().__init__(model, features, 1, params, seed, collector)
         # Define a policy net
-        self.policy_net = Network(features, actions, params, seed).to(device)
+        self.policy_net = Network(model, features, actions, seed).to(device)
 
         # Add the optimizer for policy
         self.policy_optimizer = deserializeOptimizer(self.policy_net.parameters(), self.optimizer_params)
@@ -21,10 +21,13 @@ class TDRC_PG(QRC):
             prefs = self.action_preferences(x).detach().cpu().squeeze(0).numpy()
             return prefs
 
-        self.policy = createSoftmax(seed, getPreferences)
+        self.policy = createSoftmax(seed, getPreferences, 10)
 
     def action_preferences(self, x):
-        return self.policy_net(x)[0]
+        self.policy_net.eval()
+        out = self.policy_net(x)[0]
+        self.policy_net.train()
+        return out
 
     def updateNetwork(self, batch: Batch, predictions):
         Vs = predictions['value']

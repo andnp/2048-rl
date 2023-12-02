@@ -1,15 +1,7 @@
-from problems.CartPole import CartPole
-from problems.MinBreakout import MinBreakout
-from problems.MountainCar import MountainCar
+from problems.Py2048 import Py2048
 
 def getProblem(name):
-    if name == 'MountainCar':
-        return MountainCar
-
-    if name == 'CartPole':
-        return CartPole
-
-    if name == 'MinBreakout':
-        return MinBreakout
+    if name == 'Py2048':
+        return Py2048
 
     raise NotImplementedError()

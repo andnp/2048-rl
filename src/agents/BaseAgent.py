@@ -11,8 +11,10 @@ from utils.torch import addGradients_, device, getBatchColumns, Batch
 from utils.policies import createEpsilonGreedy
 from PyExpUtils.utils.Collector import Collector
 
+import torch.nn as nn
+
 class BaseAgent:
-    def __init__(self, features: int, actions: int, params: Dict, seed: int, collector: Collector):
+    def __init__(self, model: nn.Sequential, features: int, actions: int, params: Dict, seed: int, collector: Collector):
         self.features = features
         self.actions = actions
         self.params = params
@@ -26,7 +28,7 @@ class BaseAgent:
         self.omega = params.get('omega', 1.0)
 
         # set up network for estimating Q(s, a)
-        self.value_net = Network(features, actions, params, seed).to(device)
+        self.value_net = Network(model, features, actions, seed).to(device)
 
         # build the optimizer
         self.optimizer_params = params['optimizer']
@@ -58,7 +60,10 @@ class BaseAgent:
 
     # return the Q(s, a) values from the value network
     def values(self, x):
-        return self.value_net(x)[0]
+        self.value_net.eval()
+        out = self.value_net(x)[0]
+        self.value_net.train()
+        return out
 
     # sample an action according to our policy
     def selectAction(self, x):

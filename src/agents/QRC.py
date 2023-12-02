@@ -7,8 +7,8 @@ from agents.TwoTimescale import TwoTimescale
 from utils.torch import Batch
 
 class QRC(TwoTimescale):
-    def __init__(self, features, actions, params, seed, collector):
-        super().__init__(features, actions, params, seed, collector)
+    def __init__(self, model, features, actions, params, seed, collector):
+        super().__init__(model, features, actions, params, seed, collector)
 
         # define parameter contract
         self.beta:float = params.get('beta', 1.0)
@@ -69,4 +69,4 @@ class QRC(TwoTimescale):
         self.optimizer.step()
         self.h_optimizer.step()
 
-        return delta.detach().squeeze(0).numpy()
+        return delta.detach().squeeze(0).cpu().numpy()

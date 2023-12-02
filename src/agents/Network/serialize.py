@@ -23,8 +23,9 @@ def deserializeLayer(layer_def: Dict, inputs: int):
     elif layer_def['type'] == 'conv':
         width = layer_def['width']
         out_channels = layer_def['out_channels']
-        weights = nn.Conv2d(inputs, out_channels, kernel_size=3, stride=1)
-        outputs = convOutputs(width, out_channels, 3, 1)
+        kernel = layer_def.get('kernel', 3)
+        weights = nn.Conv2d(inputs, out_channels, kernel_size=kernel, stride=1)
+        outputs = convOutputs(width, out_channels, kernel, 1)
 
     else:
         raise NotImplementedError()

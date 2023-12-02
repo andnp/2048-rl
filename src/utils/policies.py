@@ -39,8 +39,8 @@ def epsilonGreedy(qs: np.ndarray, epsilon: float):
     return (1. - epsilon) * pi + epsilon * uniform
 
 @njit(cache=True)
-def softmax(preference_values : np.ndarray):
-    t = np.exp(preference_values - np.max(preference_values))
+def softmax(preference_values : np.ndarray, tau: float = 1):
+    t = np.exp(preference_values / tau - np.max(preference_values))
     pi = t / np.sum(t)
     return pi
 
@@ -49,7 +49,7 @@ def createEpsilonGreedy(seed: int, epsilon: float, getValues: Callable[[Any], np
     policy = Policy(lambda s: epsilonGreedy(getValues(s), epsilon), rng)
     return policy
 
-def createSoftmax(seed: int, getPreferences: Callable[[Any], np.ndarray]):
+def createSoftmax(seed: int, getPreferences: Callable[[Any], np.ndarray], tau: float = 1):
     rng = np.random.RandomState(seed)
-    policy = Policy(lambda s : softmax(getPreferences(s)), rng)
+    policy = Policy(lambda s : softmax(getPreferences(s), tau), rng)
     return policy

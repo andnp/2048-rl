@@ -13,6 +13,7 @@ class BaseProblem:
         self.seed = self.run
 
         self.agent = None
+        self.model = None
         self.env = None
         self.rep = None
         self.gamma = None
@@ -33,7 +34,7 @@ class BaseProblem:
         Agent = getAgent(self.exp.agent)
 
         params = merge(self.params, {'gamma': self.getGamma()})
-        self.agent = Agent(self.features, self.actions, params, self.seed, collector)
+        self.agent = Agent(self.model, self.features, self.actions, params, self.seed, collector)
         return self.agent
 
     def getSteps(self):

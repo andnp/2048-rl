@@ -9,8 +9,8 @@ from utils.torch import Batch
 from PyExpUtils.utils.dict import merge
 
 class TwoTimescale(QLearning):
-    def __init__(self, features: int, actions: int, params: Dict, seed: int, collector: Collector):
-        super().__init__(features, actions, params, seed, collector)
+    def __init__(self, model, features: int, actions: int, params: Dict, seed: int, collector: Collector):
+        super().__init__(model, features, actions, params, seed, collector)
 
         self.h_grad:bool = self.params.get('h_grad', False)
 
